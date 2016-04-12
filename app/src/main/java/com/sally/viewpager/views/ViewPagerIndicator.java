@@ -7,13 +7,12 @@ import android.graphics.Color;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Typeface;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,6 +36,9 @@ public class ViewPagerIndicator extends LinearLayout {
     private int mTriangleHeight;
     private static final float RATIO_TRIANGLE = 1/6f;
 
+    // 三角形最大宽度限制
+    private final int TRIANGLE_WIDTH_MAX = (int)(getScreenWidth()/3*RATIO_TRIANGLE);
+
     // 初始位置， 移动时偏移位置
     private int mOriginTranslationX;
     private int mTranslationX;
@@ -45,8 +47,62 @@ public class ViewPagerIndicator extends LinearLayout {
     private int mVisableTabCount;
     private static final int DEFAULT_TAB_COUNT = 4;
 
+    // 自动生成标题数据
     private static final int DEFAULT_COLOR = 0x77ffffff;
     private List<String> mTitles;
+
+    private static final int NOMAL_COLOR = 0x44ffffff;
+    private static final int LIGNT_COLOR = 0xffffffff;
+
+    // mIndicator 关联的 viewpager
+    private ViewPager mViewPager;
+    public void setViewPager(ViewPager viewPager, int position) {
+        mViewPager = viewPager;
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                scroll(position, positionOffset);
+                if(mListener != null) {
+                    mListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
+                }
+
+                // 选中时高亮
+                setHightLightTextView(position);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(mListener != null) {
+                    mListener.onPageSelected(position);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if(mListener != null) {
+                    mListener.onPageScrollStateChanged(state);
+                }
+            }
+        });
+        mViewPager.setCurrentItem(position);
+
+        // 初始化时，高亮
+        setHightLightTextView(position);
+    }
+
+    // 我们使用了onpagechangelistener，所以提供一个接口
+    public interface OnMyPageChangeListener {
+
+        void onPageScrolled(int position, float positionOffset, int positionOffsetPixels);
+
+        void onPageSelected(int position);
+
+        void onPageScrollStateChanged(int state);
+    }
+    public OnMyPageChangeListener mListener;
+    public void setOnMyPageChangeListener(OnMyPageChangeListener listener) {
+        mListener = listener;
+    }
 
     public ViewPagerIndicator(Context context) {
         this(context, null);
@@ -90,6 +146,9 @@ public class ViewPagerIndicator extends LinearLayout {
             lp.width = getScreenWidth() / mVisableTabCount;
             view.setLayoutParams(lp);
         }
+
+        // 设置点击事件
+        setItemClick();
     }
 
     /**
@@ -153,6 +212,7 @@ public class ViewPagerIndicator extends LinearLayout {
 //        mOriginTranslationX = (w /3 - mTriangleWidth) / 2;
 
         mTriangleWidth = (int) (w / mVisableTabCount * RATIO_TRIANGLE);
+        mTriangleWidth = Math.min(mTriangleHeight, TRIANGLE_WIDTH_MAX);
         mOriginTranslationX = (w / mVisableTabCount - mTriangleWidth) / 2;
 
         mTriangleHeight = mTriangleWidth / 2;
@@ -184,6 +244,9 @@ public class ViewPagerIndicator extends LinearLayout {
                 addView(generateTextView(title));
             }
         }
+
+        // 设置点击事件
+        setItemClick();
     }
 
     /**
@@ -210,5 +273,48 @@ public class ViewPagerIndicator extends LinearLayout {
         tv.setGravity(Gravity.CENTER);
         tv.setLayoutParams(lp);
         return tv;
+    }
+
+    /**
+     * 高亮textview的文本
+     * @param position
+     */
+    public void setHightLightTextView(int position) {
+        resetTextView();
+        View view = getChildAt(position);
+        if(view instanceof TextView) {
+            ((TextView) view).setTextColor(LIGNT_COLOR);
+        }
+    }
+
+    /**
+     * 重置文本的颜色
+     */
+    public void resetTextView() {
+        for(int i=0; i<getChildCount(); i++) {
+            View view = getChildAt(i);
+            if(view instanceof TextView) {
+                ((TextView) view).setTextColor(NOMAL_COLOR);
+            }
+        }
+    }
+
+    /**
+     * tab的点击事件
+     * 1. 在finishinflact方法中调用
+     * 2. 动态生成所有标题后，调用
+     */
+    public void setItemClick() {
+        int count = getChildCount();
+        for(int i=0; i<count; i++) {
+            final int j = i;
+            View view = getChildAt(i);
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mViewPager.setCurrentItem(j);
+                }
+            });
+        }
     }
 }

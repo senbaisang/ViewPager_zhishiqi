@@ -36,18 +36,21 @@ public class MainActivity2 extends FragmentActivity {
         mIndicator.setTabItemTitles(mTitles);
 
         mViewPager.setAdapter(mAdapter);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mIndicator.setViewPager(mViewPager, 0);
+        mIndicator.setOnMyPageChangeListener(new ViewPagerIndicator.OnMyPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                mIndicator.scroll(position, positionOffset);
+
             }
 
             @Override
             public void onPageSelected(int position) {
+
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
+
             }
         });
     }
