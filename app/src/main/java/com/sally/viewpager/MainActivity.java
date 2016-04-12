@@ -19,7 +19,7 @@ public class MainActivity extends FragmentActivity {
     private ViewPager mViewPager;
     private ViewPagerIndicator mIndicator;
 
-    private List<String> mTitles = Arrays.asList("标题1", "标题2", "标题3");
+    private List<String> mTitles = Arrays.asList("标题1", "标题2", "标题3", "标题4", "标题5", "标题6");
     private List<VpSampleFragment> mFragments = new ArrayList<VpSampleFragment>();
     private FragmentPagerAdapter mAdapter;
 
