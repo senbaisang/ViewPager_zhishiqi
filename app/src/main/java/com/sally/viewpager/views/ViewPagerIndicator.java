@@ -7,13 +7,20 @@ import android.graphics.Color;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.sally.viewpager.R;
+
+import java.util.List;
 
 /**
  * Created by sally on 16/4/12.
@@ -37,6 +44,9 @@ public class ViewPagerIndicator extends LinearLayout {
     // 自定义属性
     private int mVisableTabCount;
     private static final int DEFAULT_TAB_COUNT = 4;
+
+    private static final int DEFAULT_COLOR = 0x77ffffff;
+    private List<String> mTitles;
 
     public ViewPagerIndicator(Context context) {
         this(context, null);
@@ -160,5 +170,45 @@ public class ViewPagerIndicator extends LinearLayout {
         mPath.lineTo(mTriangleWidth, 0);
         mPath.lineTo(mTriangleWidth / 2, -mTriangleHeight);
         mPath.close();
+    }
+
+    /**
+     * 自动生成title栏
+     * @param titles
+     */
+    public void setTabItemTitles(List<String> titles) {
+        if(titles != null && titles.size() > 0) {
+            removeAllViews();
+            mTitles = titles;
+            for(String title : mTitles) {
+                addView(generateTextView(title));
+            }
+        }
+    }
+
+    /**
+     * 设置可见标题的数量。
+     * 注： 该方法必须在setTabItemTitles()方法之前调用
+     * @param count
+     */
+    public void setVisibleTabCount(int count) {
+        mVisableTabCount = count;
+    }
+
+    /**
+     * 生成textview
+     * @param title
+     * @return
+     */
+    private View generateTextView(String title) {
+        TextView tv = new TextView(getContext());
+        LinearLayout.LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        lp.width = getScreenWidth() / mVisableTabCount;
+        tv.setText(title);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        tv.setTextColor(DEFAULT_COLOR);
+        tv.setGravity(Gravity.CENTER);
+        tv.setLayoutParams(lp);
+        return tv;
     }
 }
