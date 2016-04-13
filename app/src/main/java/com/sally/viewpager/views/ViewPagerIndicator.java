@@ -212,7 +212,7 @@ public class ViewPagerIndicator extends LinearLayout {
 //        mOriginTranslationX = (w /3 - mTriangleWidth) / 2;
 
         mTriangleWidth = (int) (w / mVisableTabCount * RATIO_TRIANGLE);
-        mTriangleWidth = Math.min(mTriangleHeight, TRIANGLE_WIDTH_MAX);
+        mTriangleWidth = Math.min(mTriangleWidth, TRIANGLE_WIDTH_MAX);
         mOriginTranslationX = (w / mVisableTabCount - mTriangleWidth) / 2;
 
         mTriangleHeight = mTriangleWidth / 2;
